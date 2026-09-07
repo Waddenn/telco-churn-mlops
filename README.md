@@ -5,12 +5,13 @@ End-to-end binary classification project built for the M2 MLOps course proposal.
 ## What is included
 
 - versioned public IBM CSV in `data/raw.csv` so a reviewer can test offline;
+- dataset integrity check (expected shape and SHA-256) before every full run;
 - reproducible EDA and data-quality report;
 - `ColumnTransformer` with numeric imputation/scaling and categorical imputation/one-hot encoding;
 - logistic-regression grid search using stratified 5-fold ROC-AUC selection;
 - MLflow parameters, child tuning runs, metrics, configuration, analysis, plots, predictions, sklearn model, joblib export, and registry alias `staging`;
 - holdout ROC, precision–recall, confusion matrix, six metrics, and row-level error analysis;
-- CLI batch prediction, FastAPI service, Docker image, tests, linting, and GitHub Actions CI.
+- CLI batch prediction, strictly validated FastAPI single/batch endpoints, Docker image, 22 tests, linting, and end-to-end GitHub Actions CI.
 
 ## Reproduce locally
 
@@ -24,6 +25,7 @@ make all
 The individual stages are also explicit:
 
 ```bash
+make data
 make analyze
 make train
 make evaluate
@@ -62,6 +64,16 @@ curl -X POST http://127.0.0.1:8000/predict \
 
 Interactive OpenAPI documentation is at <http://127.0.0.1:8000/docs>.
 
+Batch API prediction accepts a JSON array and preserves its cardinality:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict/batch \
+  -H 'Content-Type: application/json' \
+  --data "[$(cat example_customer.json)]"
+```
+
+Categorical fields use the values supported by the training data. Invalid categories, missing required fields, and unexpected fields return HTTP 422 with validation details.
+
 ## Docker
 
 Train first so `artifacts/model.joblib` exists, then:
@@ -87,7 +99,8 @@ mlops-project/
 │   ├── pipeline.py
 │   ├── predict.py
 │   ├── train.py
-│   └── utils.py
+│   ├── utils.py
+│   └── verify_data.py
 ├── tests/
 ├── Dockerfile
 ├── Makefile
@@ -97,10 +110,12 @@ mlops-project/
 ## Reproducibility and design notes
 
 - The dataset hash and split seed are logged.
+- `make data` validates all 7,043 rows, 21 columns, and the expected SHA-256 without requiring a network download.
 - The customer ID is retained for provenance but excluded from features.
 - The holdout set is never used by `GridSearchCV`.
 - Missing `TotalCharges` values are parsed but imputed only inside training folds.
 - `random_state=42` is applied to the split, CV, and estimator.
 - Configuration paths are resolved relative to the project, not the shell's current directory.
+- CI runs lint and 22 tests first, then repeats data verification, EDA, training, model registration, and evaluation on a clean runner. Evaluation outputs are retained as downloadable workflow artifacts.
 
 The source dataset is IBM's public Telco Customer Churn sample: <https://github.com/IBM/telco-customer-churn-on-icp4d/tree/master/data>.

@@ -4,12 +4,15 @@ PYTHON_BOOTSTRAP ?= python3.12
 CONFIG ?= configs/config.yaml
 EXP ?= telco-churn-production
 
-.PHONY: init analyze train evaluate test lint format all serve mlflow-ui docker-build clean
+.PHONY: init data analyze train evaluate test lint format all serve mlflow-ui docker-build clean
 
 init:
 	$(PYTHON_BOOTSTRAP) -m venv .venv
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
+
+data:
+	$(PYTHON) -m src.verify_data --config $(CONFIG)
 
 analyze:
 	$(PYTHON) -m src.analyze --config $(CONFIG)
@@ -29,7 +32,7 @@ lint:
 format:
 	$(PYTHON) -m ruff format src tests
 
-all: analyze train evaluate test lint
+all: data analyze train evaluate test lint
 
 serve:
 	$(PYTHON) -m uvicorn src.api:app --host 0.0.0.0 --port 8000

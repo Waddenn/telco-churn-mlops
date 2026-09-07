@@ -2,7 +2,7 @@
 
 ## Experiment
 
-- MLflow run ID: `4a34323637614916b882d4078a959f91`
+- MLflow run ID: `5cc209a4978740ea93cebe8d1dd32f93`
 - Model: logistic regression after stratified 5-fold grid search
 - Selection metric: ROC-AUC
 - Best mean CV ROC-AUC: **0.8463**
