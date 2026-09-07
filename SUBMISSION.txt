@@ -1,3 +1,0 @@
-Repository URL: https://github.com/Waddenn/telco-churn-mlops
-
-Private repository. Grant the instructor account Amokh2018 access before submission.
