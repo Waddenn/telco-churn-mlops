@@ -1,0 +1,59 @@
+data:
+  csv_path: data/raw.csv
+  processed_dir: data/processed
+  target: Churn
+  id_column: customerID
+  test_size: 0.20
+  random_state: 42
+
+features:
+  numeric:
+    - tenure
+    - MonthlyCharges
+    - TotalCharges
+  categorical:
+    - gender
+    - SeniorCitizen
+    - Partner
+    - Dependents
+    - PhoneService
+    - MultipleLines
+    - InternetService
+    - OnlineSecurity
+    - OnlineBackup
+    - DeviceProtection
+    - TechSupport
+    - StreamingTV
+    - StreamingMovies
+    - Contract
+    - PaperlessBilling
+    - PaymentMethod
+
+model:
+  type: logreg
+  random_state: 42
+  max_iter: 1000
+  params:
+    model__C: [0.1, 1.0, 10.0]
+    model__class_weight: [null, balanced]
+    model__solver: [liblinear]
+
+cv:
+  strategy: StratifiedKFold
+  n_splits: 5
+  shuffle: true
+  scoring: roc_auc
+  n_jobs: -1
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: telco-churn-production
+  registered_model_name: ChurnClassifier
+  register_model: true
+  model_alias: staging
+
+artifacts:
+  directory: artifacts
+  model_path: artifacts/model.joblib
+  metrics_path: artifacts/metrics.json
+  metadata_path: artifacts/training_metadata.json
