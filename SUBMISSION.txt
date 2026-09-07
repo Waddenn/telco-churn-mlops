@@ -1,3 +1,3 @@
-Repository URL: TO_BE_REPLACED_AFTER_PUBLICATION
+Repository URL: https://github.com/Waddenn/telco-churn-mlops
 
-Before submission, replace the value above with the GitHub repository URL and grant the instructor access if the repository is private.
+Private repository. Grant the instructor account Amokh2018 access before submission.
